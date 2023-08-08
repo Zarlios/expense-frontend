@@ -5,6 +5,7 @@ const Register = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,8 +20,11 @@ const Register = () => {
       // Redirect the user to the login page after successful registration
       window.location = "/login";
     } catch (error) {
-      console.error("Registration failed:", error);
-      // Handle registration failure here (e.g., show an error message)
+      if (error.response && error.response.status === 409) {
+        setError('Username already exists');
+      } else {
+        setError('Registration failed. Please try again later.');
+      }
     }
   };
 
@@ -54,6 +58,7 @@ const Register = () => {
         <br />
         <input type="submit" value="Register" />
       </form>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>
   );
 };
