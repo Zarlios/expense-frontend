@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "./api";
 
 const Register = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,7 +16,7 @@ const Register = () => {
     }
 
     try {
-      await axios.post("http://localhost:5050/users/", { username, password });
+      await api.post("http://localhost:5050/users/", { username, password });
       // Redirect the user to the login page after successful registration
       window.location = "/login";
     } catch (error) {

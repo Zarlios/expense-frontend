@@ -11,12 +11,11 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
-      api.post("/login", { username, password })
-      .then((response) => {
+      api.post("/login", { username, password }).then((response) => {
         if (response.data === "OK") navigate("/expenses");
-      })
+      });
     } catch (error) {
       if (error.response && error.response.status === 404) {
         setError("Incorrect username/password");
@@ -42,30 +41,33 @@ const Login = () => {
   return (
     <>
       <div>
-        { isAuthenticated ? (
+        {isAuthenticated ? (
           <h1>Welcome to the Dashboard!</h1>
         ) : (
-      <h1>Logged Out</h1>)}
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Username"
-          required
-        />
-        <br />
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          required
-        />
-        <br />
-        <input type="submit" value="Login" />
-      </form>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+          <>
+            <h1>Logged Out</h1>
+            <form onSubmit={handleSubmit}>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Username"
+                required
+              />
+              <br />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+                required
+              />
+              <br />
+              <input type="submit" value="Login" />
+            </form>
+            {error && <p style={{ color: "red" }}>{error}</p>}
+          </>
+        )}
       </div>
     </>
   );
