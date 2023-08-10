@@ -1,41 +1,41 @@
-import React from "react";
+import React, { useState } from "react";
 import { Route, Routes } from "react-router-dom";
-import { useEffect, useState } from "react";
-import api from "./components/api";
 
 import Banner from "./components/Banner";
 import Navbar from "./components/Navbar";
 import Index from "./components/Index";
-import Logout from "./components/Logout";
 import LoginPage from "./components/LoginPage";
 import ExpensesPage from "./components/ExpensesPage";
 import RegisterPage from "./components/RegisterPage";
-import NavbarAuth from "./components/NavbarAuth";
 
 const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  useEffect(() => {
-    const auth = async () => {
-      try {
-        await api.get("http://localhost:5050/authStatus").then((response) => {
-          setIsAuthenticated(response.data.isAuthenticated);
-        });
-      } catch (error) {
-        console.error("Error fetching authentication status:", error);
-      }
-    };
-    auth();
-  }, []);
+  const [authenticated, setAuthenticated] = useState(Boolean);
+
+  const logout = () => {
+    setAuthenticated(false);
+  };
+
+  const login = () => {
+    setAuthenticated(true);
+  };
+
   return (
     <>
-      {isAuthenticated ? <NavbarAuth /> : <Navbar />}
+      <Navbar authenticated={authenticated} onLogout={logout} />
       <Banner>
         <Routes>
-          <Route path="/" element={<Index /> } />
+          <Route
+            path="/"
+            element={<Index authenticated={authenticated} onLogin={login} />}
+          />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/login" element={<LoginPage /> } />
-          <Route path="/logout" element={<Logout /> } />
-          <Route path ="/expenses" element={<ExpensesPage /> } />
+          <Route
+            path="/login"
+            element={
+              <LoginPage authenticated={authenticated} onLogin={login} />
+            }
+          />
+          <Route path="/expenses" element={<ExpensesPage />} />
         </Routes>
       </Banner>
     </>

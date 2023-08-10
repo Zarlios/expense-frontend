@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import api from "./api";
+import api from "../api/api";
 
 const Expenses = () => {
   // Make this into a hook.

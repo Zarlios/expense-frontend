@@ -1,26 +1,30 @@
-import { useEffect, useState } from "react";
-import api from "./api";
-
+import React from "react";
 import "bootstrap/dist/css/bootstrap.css";
 import "../assets/stylesheet.css";
+import logout from "../hooks/logout";
 
 import { NavLink } from "react-router-dom";
 
-const Navbar = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  useEffect(() => {
-    const auth = async () => {
-      try {
-        await api.get("http://localhost:5050/authStatus").then((response) => {
-          setIsAuthenticated(response.data.isAuthenticated);
-        });
-      } catch (error) {
-        console.error("Error fetching authentication status:", error);
-      }
-    };
-    auth();
-  }, [isAuthenticated]);
+const LogoutNavLink = ({ onLogout }) => {
+  const logoutVar = logout();
+  const handleLogout = async () => {
+    try {
+      if (logoutVar) onLogout();
+      else console.error("Logout failed:")
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
+  return (
+    <NavLink to="/" className="nav-link" id="nav-link" onClick={handleLogout}>
+      Logout
+    </NavLink>
+  );
+};
+
+const Navbar = ({ authenticated, onLogout }) => {
+  console.log("Navbar: " + authenticated)
   return (
     <>
       <nav className="navbar navbar-expand-lg bg-light">
@@ -29,12 +33,10 @@ const Navbar = () => {
             <h1>Expense Tracker</h1>
           </NavLink>
           <ul className="navbar-nav justify-content-end">
-            {isAuthenticated ? (
-              <>
-                <NavLink className="nav-link" id="nav-link" to="/Logout">
-                  Logout
-                </NavLink>
-              </>
+            {authenticated ? (
+              <li>
+                <LogoutNavLink onLogout={onLogout} />
+              </li>
             ) : (
               <>
                 <li>

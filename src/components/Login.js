@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "./api";
+import api from "../api/api";
 
-const Login = () => {
+const Login = ({authenticated, onLogin}) => {
+  console.log("Login:" + JSON.stringify(authenticated))
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -14,7 +15,9 @@ const Login = () => {
 
     try {
       api.post("/login", { username, password }).then((response) => {
-        if (response.data === "OK") navigate("/expenses");
+        if (response.data === "OK") {
+          onLogin();
+          navigate("/expenses");}
       });
     } catch (error) {
       if (error.response && error.response.status === 404) {
@@ -25,23 +28,10 @@ const Login = () => {
     }
   };
 
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  useEffect(() => {
-    // Make an API request to fetch the authentication status
-    api
-      .get("/authStatus")
-      .then((response) => {
-        setIsAuthenticated(response.data.isAuthenticated);
-      })
-      .catch((error) => {
-        console.error("Error fetching authentication status:", error);
-      });
-  }, []);
-
   return (
     <>
       <div>
-        {isAuthenticated ? (
+        {authenticated ? (
           <h1>Welcome to the Dashboard!</h1>
         ) : (
           <>

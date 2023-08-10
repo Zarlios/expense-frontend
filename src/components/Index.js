@@ -1,7 +1,7 @@
 import React from "react";
 import Login from "./Login";
 
-const App = () => {
+const App = ({authenticated, onLogin}) => {
   return (
     <div className="row">
       <div className="col" id="content">
@@ -14,7 +14,7 @@ const App = () => {
       </div>
       <div className="col">
         <div id="pic">
-          <Login />
+          <Login authenticated={authenticated} onLogin={onLogin} />
         </div>
       </div>
     </div>
