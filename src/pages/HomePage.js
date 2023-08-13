@@ -1,23 +1,30 @@
-import React, { useState } from "react";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import api from "../api/api";
+import { login } from "../features/user/userSlice";
+import { loginUser } from "../features/api/authenticationService";
 
-const Login = ({authenticated, onLogin}) => {
-  console.log("Login:" + JSON.stringify(authenticated))
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
 
+const LoginPage = () => {
+  const dispatch = useDispatch();
+  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
+  console.log("Login:" + isAuthenticated);
   const navigate = useNavigate();
+
+  const [username, setUsername] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [error, setError] = React.useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      api.post("/login", { username, password }).then((response) => {
+      loginUser(username, password)
+      .then((response) => {
         if (response.data === "OK") {
-          onLogin();
-          navigate("/expenses");}
+          dispatch(login());
+          navigate("/expenses");
+        }
       });
     } catch (error) {
       if (error.response && error.response.status === 404) {
@@ -27,11 +34,21 @@ const Login = ({authenticated, onLogin}) => {
       }
     }
   };
-
+  console.log("LoginPage: ")
   return (
-    <>
-      <div>
-        {authenticated ? (
+    <div className="row">
+      <div className="col" id="content">
+        <h1>Matt's Expense Tracker!</h1>
+        <h3>Please login/register an acccount</h3>
+        <p>This Expense Tracker will:</p>
+        <li>Add, Remove, Edit Expense</li>
+        <li>Organize by category</li>
+        <li>Summarize your expenses</li>
+      </div>
+      <div className="col">
+        <div id="pic">
+        <div>
+        {isAuthenticated ? (
           <h1>Welcome to the Dashboard!</h1>
         ) : (
           <>
@@ -59,8 +76,10 @@ const Login = ({authenticated, onLogin}) => {
           </>
         )}
       </div>
-    </>
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default Login;
+export default LoginPage;

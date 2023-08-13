@@ -1,30 +1,22 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.css";
 import "../assets/stylesheet.css";
-import logout from "../hooks/logout";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../features/user/userSlice";
+import { logoutUser } from "../features/api/authenticationService";
 
 import { NavLink } from "react-router-dom";
 
-const LogoutNavLink = ({ onLogout }) => {
-  const logoutVar = logout();
-  const handleLogout = async () => {
-    try {
-      if (logoutVar) onLogout();
-      else console.error("Logout failed:")
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
+const Navbar = () => {
+  const dispatch = useDispatch();
+  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
+  const handleLogout = () => {
+    logoutUser().then((response) => {
+      if(response.data === "OK") dispatch(logout());
+    });
   };
+  console.log("Navbar: " + isAuthenticated);
 
-  return (
-    <NavLink to="/" className="nav-link" id="nav-link" onClick={handleLogout}>
-      Logout
-    </NavLink>
-  );
-};
-
-const Navbar = ({ authenticated, onLogout }) => {
-  console.log("Navbar: " + authenticated)
   return (
     <>
       <nav className="navbar navbar-expand-lg bg-light">
@@ -33,17 +25,19 @@ const Navbar = ({ authenticated, onLogout }) => {
             <h1>Expense Tracker</h1>
           </NavLink>
           <ul className="navbar-nav justify-content-end">
-            {authenticated ? (
+            {isAuthenticated ? (
               <li>
-                <LogoutNavLink onLogout={onLogout} />
+                <NavLink
+                  to="/"
+                  className="nav-link"
+                  id="nav-link"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </NavLink>
               </li>
             ) : (
               <>
-                <li>
-                  <NavLink className="nav-link" id="nav-link" to="/login">
-                    Login
-                  </NavLink>
-                </li>
                 <li>
                   <NavLink className="nav-link" id="nav-link" to="/register">
                     Register
