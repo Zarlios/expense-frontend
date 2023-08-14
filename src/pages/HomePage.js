@@ -5,10 +5,9 @@ import { login } from "../features/user/userSlice";
 import { loginUser } from "../features/api/authenticationService";
 
 
-const LoginPage = () => {
+const HomePage = () => {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
-  console.log("Login:" + isAuthenticated);
   const navigate = useNavigate();
 
   const [username, setUsername] = React.useState("");
@@ -21,7 +20,7 @@ const LoginPage = () => {
     try {
       loginUser(username, password)
       .then((response) => {
-        if (response.data === "OK") {
+        if (response.data.status === "success") {
           dispatch(login());
           navigate("/expenses");
         }
@@ -34,7 +33,6 @@ const LoginPage = () => {
       }
     }
   };
-  console.log("LoginPage: ")
   return (
     <div className="row">
       <div className="col" id="content">
@@ -82,4 +80,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default HomePage;

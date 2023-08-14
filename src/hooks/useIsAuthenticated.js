@@ -10,7 +10,6 @@ const useIsAuthenticated = () => {
       try {
         const response = await api.get("/authStatus");
         setIsAuthenticated(response.data.isAuthenticated);
-        console.log(response.data.isAuthenticated);
       } catch (error) {
         setIsAuthenticated(false);
         console.error("Error fetching authentication status:", error);

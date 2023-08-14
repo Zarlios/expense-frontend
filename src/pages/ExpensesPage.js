@@ -1,4 +1,8 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../features/api/api"
+
+import { useSelector } from "react-redux";
 
 const App = () => {
   const [expenseDate, setExpenseDate] = React.useState("");
@@ -8,17 +12,52 @@ const App = () => {
   const [merchant, setMerchant] = React.useState("");
   const [note, setNote] = React.useState("");
   const [receipt, setReceipt] = React.useState("");
+
   const [error, setError] = React.useState("");
+
+  const [expenses, setExpenses] = React.useState([])
+
+  const navigate = useNavigate();
+
+  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
+  console.log(isAuthenticated);
+
+  React.useEffect(() => {
+    console.log(isAuthenticated)
+    if (typeof isAuthenticated !== 'undefined' && !isAuthenticated) {
+      navigate("/");
+    }
+    
+  },[isAuthenticated])
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
-      api.post("/expense", { userId, expenseDate, category, amount, paymentMethod, merchant, note, receipt }).then((response) => {
-
-       });
+      api.post("/expenses", { expenseDate, 
+        category, amount, paymentMethod, merchant, note, receipt })
+        .then((response) => {
+          console.log(response.data.status)
+          if (response.data.status === "success"){
+            setError("Success!!");
+            setExpenseDate("");
+            setCategory("");
+            setAmount("");
+            setPaymentMethod("");
+            setMerchant("");
+            setNote("");
+            setReceipt("");
+          }
+        }).catch((error) => {
+          console.log(error.response.data.message)
+          if (error.response.data.message === "Expense validation failed: userId: Path `userId` is required.") {
+            setError("Please login")
+          } else {
+            setError("Expense post failed")
+          }
+        })
     } catch (error) {
-      if (error.response && error.response.status === 404) {
+      if (error.response && error.response.status === 500) {
         setError("Incorrect username/password");
       } else {
         setError("Registration failed. Please try again later.");
@@ -27,6 +66,7 @@ const App = () => {
   };
 
   return (
+    <>
     <div className="row">
       <div className="col" id="content">
       </div> 
@@ -35,10 +75,10 @@ const App = () => {
         <h1>Register</h1>
             <form onSubmit={handleSubmit}>
               <input
-                type="text"
+                type="date"
                 value={expenseDate}
                 onChange={(e) => setExpenseDate(e.target.value)}
-                placeholder="Username"
+                placeholder="Expense Date"
                 required
               />
               <br />
@@ -46,7 +86,7 @@ const App = () => {
                 type="text"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                placeholder="Password"
+                placeholder="Category"
                 required
               />
               <br />
@@ -96,6 +136,17 @@ const App = () => {
         </div>
       </div>
     </div>
+    <div>
+      <h2>Expenses List</h2>
+      <ul>
+        {expenses.map(expense => (
+          <li key={expense._id}>
+            Description: {expense.description}, Amount: {expense.amount}
+          </li>
+        ))}
+      </ul>
+    </div>
+    </>
   );
 };
 

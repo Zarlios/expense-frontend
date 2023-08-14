@@ -15,7 +15,6 @@ const Navbar = () => {
       if(response.data === "OK") dispatch(logout());
     });
   };
-  console.log("Navbar: " + isAuthenticated);
 
   return (
     <>
