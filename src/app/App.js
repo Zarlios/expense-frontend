@@ -1,7 +1,6 @@
 import React from "react";
 import { useDispatch } from "react-redux";
 import ApplicationRoutes from "./routes";
-import Banner from "../components/Banner";
 import Navbar from "../components/Navbar";
 import { login, logout } from "../features/user/userSlice";
 import api from "../features/api/api";
@@ -17,14 +16,12 @@ const App = () => {
         dispatch(logout());
       }
     });
-  }, []);
+  }, [dispatch]);
 
   return (
     <>
       <Navbar />
-      <Banner>
-        <ApplicationRoutes />
-      </Banner>
+      <ApplicationRoutes />
     </>
   );
 };

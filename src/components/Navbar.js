@@ -1,6 +1,4 @@
 import React from "react";
-import "bootstrap/dist/css/bootstrap.css";
-import "../assets/stylesheet.css";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../features/user/userSlice";
 import { logoutUser } from "../features/api/authenticationService";
