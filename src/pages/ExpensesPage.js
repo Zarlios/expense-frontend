@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import api from "../features/api/api";
 
 import ExpenseRow from "../components/ExpenseRow";
+import ExpenseSummary from "../components/ExpenseSummary";
 
 import { useSelector } from "react-redux";
 
 const App = () => {
-  let [expenseDate, setExpenseDate] = React.useState("");
+  const [expenseDate, setExpenseDate] = React.useState("");
   const [category, setCategory] = React.useState("");
   const [amount, setAmount] = React.useState("");
   const [paymentMethod, setPaymentMethod] = React.useState("");
@@ -19,15 +20,42 @@ const App = () => {
 
   const [expenses, setExpenses] = React.useState([]);
 
-  const [newPost, setNewPost] = React.useState(false)
+  const [newPost, setNewPost] = React.useState(false);
 
   const navigate = useNavigate();
 
   const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
-  console.log(isAuthenticated);
+
+  const handleSummary = (expenses) => {
+    const summaryData = {
+      grocery: 0,
+      healthcare: 0,
+      insurance: 0,
+      bill: 0,
+      other: 0,
+    };
+
+    expenses.forEach((expense) => {
+      const { category, amount } = expense;
+      if (summaryData.hasOwnProperty(category)) {
+        summaryData[category] += amount;
+        
+      }
+    });
+
+    const summaryArray = Object.entries(summaryData).map(
+      ([category, amount]) => {
+        return `${
+          category.charAt(0).toUpperCase() + category.slice(1)
+        } Expenses: $${amount.toFixed(2)}`;
+      }
+    );
+    console.log(summaryArray.join("\n"));
+
+    return summaryArray.join("\n");
+  };
 
   React.useEffect(() => {
-    console.log(isAuthenticated);
     if (typeof isAuthenticated !== "undefined" && !isAuthenticated) {
       navigate("/");
     }
@@ -35,18 +63,18 @@ const App = () => {
 
   React.useEffect(() => {
     api.get("/expenses").then((response) => {
-      console.log("use" + response);
       if (response) {
         setExpenses(response.data);
-        setNewPost(false);
+        handleSummary(response.data);
       }
+      setNewPost(false);
     });
   }, [newPost]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const dateTime = new Date(expenseDate);
-      try {
+    try {
       api
         .post("/expenses", {
           dateTime,
@@ -62,7 +90,7 @@ const App = () => {
           if (response.data.status === "success") {
             setError("Success!!");
             setExpenseDate("");
-            setCategory("");
+            setCategory("Dining");
             setAmount("");
             setPaymentMethod("");
             setMerchant("");
@@ -96,7 +124,9 @@ const App = () => {
     <>
       <div className="container-fluid" id="banner">
         <div className="row">
-          <div className="col" id="content"></div>
+          <div className="col" id="content">
+            <ExpenseSummary expenses={expenses} />
+          </div>
           <div className="col">
             <div id="pic">
               <form onSubmit={handleSubmit}>
@@ -108,13 +138,18 @@ const App = () => {
                   required
                 />
                 <br />
-                <input
-                  type="text"
-                  value={category}
+                <select
+                  id="category"
+                  name="category"
                   onChange={(e) => setCategory(e.target.value)}
-                  placeholder="Category"
-                  required
-                />
+                >
+                  <option value="dining">Dining</option>
+                  <option value="grocery">Grocery</option>
+                  <option value="healthcare">Healthcare</option>
+                  <option value="insurance">Insurance</option>
+                  <option value="bill">Bill</option>
+                  <option value="other">Other</option>
+                </select>
                 <br />
                 <input
                   type="number"
@@ -151,7 +186,6 @@ const App = () => {
                   value={receipt}
                   onChange={(e) => setReceipt(e.target.value)}
                   placeholder="Receipt"
-
                 />
                 <br />
                 <input type="submit" value="Register" />
@@ -161,19 +195,47 @@ const App = () => {
           </div>
         </div>
       </div>
-      <div>
-        <div className="row">
+      <div className="data">
+        <div className="row border">
           <div className="col-sm">Date</div>
           <div className="col-sm">Amount</div>
           <div className="col-sm">Category</div>
-          <div className="col-sm">PaymentMethod</div>
+          <div className="col-sm">Payment Method</div>
           <div className="col-sm">Merchant</div>
           <div className="col-sm">Note</div>
           <div className="col-sm">Receipt</div>
-          <div className="col-sm">Edit/Delete</div>
+          <div className="col-sm"></div>
         </div>
         {expenses.map((expense) => (
-          <ExpenseRow expense={expense} onDelete={(expenseId) => {"api call to delete"}} onChange={(updatedExpense) => {"api call to update"}}/>
+          <ExpenseRow
+            expense={expense}
+            onDelete={(expenseId) => {
+              api
+                .delete(`/expenses/${expenseId}`)
+                .then((response) => {
+                  if (response.data) {
+                    console.log(response);
+                    setNewPost(true);
+                  }
+                })
+                .catch((error) => {
+                  console.log(error);
+                });
+            }}
+            onUpdate={(updatedExpense) => {
+              api
+                .patch("/expenses", updatedExpense)
+                .then((response) => {
+                  if (response.data) {
+                    console.log(response);
+                    setNewPost(true);
+                  }
+                })
+                .catch((error) => {
+                  console.log(error);
+                });
+            }}
+          />
         ))}
       </div>
     </>
