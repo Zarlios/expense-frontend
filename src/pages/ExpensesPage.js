@@ -26,34 +26,7 @@ const App = () => {
 
   const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
 
-  const handleSummary = (expenses) => {
-    const summaryData = {
-      grocery: 0,
-      healthcare: 0,
-      insurance: 0,
-      bill: 0,
-      other: 0,
-    };
-
-    expenses.forEach((expense) => {
-      const { category, amount } = expense;
-      if (summaryData.hasOwnProperty(category)) {
-        summaryData[category] += amount;
-        
-      }
-    });
-
-    const summaryArray = Object.entries(summaryData).map(
-      ([category, amount]) => {
-        return `${
-          category.charAt(0).toUpperCase() + category.slice(1)
-        } Expenses: $${amount.toFixed(2)}`;
-      }
-    );
-    console.log(summaryArray.join("\n"));
-
-    return summaryArray.join("\n");
-  };
+  api.get("/authStatus");
 
   React.useEffect(() => {
     if (typeof isAuthenticated !== "undefined" && !isAuthenticated) {
@@ -65,7 +38,6 @@ const App = () => {
     api.get("/expenses").then((response) => {
       if (response) {
         setExpenses(response.data);
-        handleSummary(response.data);
       }
       setNewPost(false);
     });
