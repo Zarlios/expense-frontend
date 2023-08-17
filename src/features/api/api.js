@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:10000', // Your Express server's URL
+  baseURL: 'https://expense-backend-7vd9.onrender.com',
+
   withCredentials: true, // Set withCredentials to true
 });
 
